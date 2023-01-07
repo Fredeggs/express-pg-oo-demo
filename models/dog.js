@@ -7,6 +7,7 @@
  * */
 
 const db = require("../db");
+const ExpressError = require("../expressError");
 
 
 class Dog {
@@ -21,6 +22,7 @@ class Dog {
     this.id = id;
     this.name = name;
     this.age = age;
+    this.species = "DOG!"
   }
 
   /** get all dogs: returns [dog, ...] */
@@ -31,6 +33,10 @@ class Dog {
     return result.rows.map(d => new Dog(d.id, d.name, d.age));
   }
 
+  speak(){
+    console.log(`${this.name} says woof!`)
+  }
+
   /** get dog by id: returns dog */
 
   static async getById(id) {
@@ -39,7 +45,7 @@ class Dog {
         [id]);
 
     if (result.rows.length === 0) {
-      throw new Error(`No such dog: ${id}`);
+      throw new ExpressError(`No such dog: ${id}`, 404);
     }
 
     let d = result.rows[0];

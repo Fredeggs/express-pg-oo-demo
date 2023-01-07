@@ -30,29 +30,48 @@ router.get("/", async function (req, res, next) {
 /** get cat by id: {id, name, age} */
 
 router.get("/:id", async function (req, res, next) {
-  let cat = await Cat.getById(req.params.id);
-  return res.json(cat);
+  try {
+    let cat = await Cat.getById(req.params.id);
+    return res.json(cat);
+  } 
+  catch (e) {
+    return next(e);
+  }
 });
 
 /** create cat from {name, age}: return {name, age} */
 
 router.post("/", async function (req, res, next) {
-  let cat = await Cat.create(req.body.name, req.body.age);
-  return res.json(cat);
+  try {
+    let cat = await Cat.create(req.body.name, req.body.age);
+    return res.json(cat);
+  } catch (e) {
+   return next(e); 
+  }
 });
 
 /** delete cat from {id}; returns "deleted" */
 
 router.delete("/:id", async function (req, res, next) {
-  await Cat.remove(req.params.id);
-  return res.json("deleted");
+  try {
+    await Cat.remove(req.params.id);
+    return res.json("deleted");
+  } 
+  catch (e) {
+    return next(e);   
+  }
 });
 
 /** age cat: returns new age */
 
-router.post("/:id/age", async function (req, res, next) {
-  let newAge = await Cat.makeOlder(req.params.id);
-  return res.json(newAge);
+router.patch("/:id/age", async function (req, res, next) {
+  try {
+    let updatedCat = await Cat.makeOlder(req.params.id);
+    return res.json(updatedCat);
+  } 
+  catch (e) {
+    return next(e);    
+  }
 });
 
 

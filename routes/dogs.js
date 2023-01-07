@@ -6,29 +6,35 @@ const Dog = require("../models/dog");
 
 const router = new express.Router();
 
-// IMPORTANT: all of these function bodies should really be
-// wrapped in a try/catch, where catching an error calls
-// next(err) --- this is omitted here for brevity in slides
-
 
 /** get all dogs: [{id, name, age}, ...] */
 
 router.get("/", async function (req, res, next) {
-  let dogs = await Dog.getAll();
-  return res.json(dogs);
+  try {
+    let dogs = await Dog.getAll();
+    dogs.forEach(dog => dog.speak());
+    return res.json(dogs);
+  } catch (e) {
+   return next(e) 
+  }
 });
 
 /** get dog by id: {id, name, age} */
 
 router.get("/:id", async function (req, res, next) {
-  let dog = await Dog.getById(req.params.id);
-  return res.json(dog);
+  try {
+    let dog = await Dog.getById(req.params.id);
+    return res.json(dog); 
+  } catch (e) {
+    return next(e);
+  }
 });
 
 /** create dog from {name, age}: return id */
 
 router.post("/", async function (req, res, next) {
-  let id = await Dog.create(req.body.name, req.body.age);
+  const {name, age} = req.body;
+  let id = await Dog.create(name, age);
   return res.json(id);
 });
 
@@ -43,7 +49,7 @@ router.delete("/:id", async function (req, res, next) {
 
 /** age dog: returns new age */
 
-router.post("/:id/age", async function (req, res, next) {
+router.patch("/:id/age", async function (req, res, next) {
   let dog = await Dog.getById(req.params.id);
   dog.age += 1;
   await dog.save();

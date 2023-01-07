@@ -7,6 +7,7 @@
  * */
 
 const db = require("../db");
+const ExpressError = require("../expressError")
 
 
 class Cat {
@@ -27,7 +28,7 @@ class Cat {
         [id]);
 
     if (result.rows.length === 0) {
-      throw new Error(`No such cat: ${id}`);
+      throw new ExpressError(`No such cat: ${id}`, 404);
     }
 
     return result.rows[0];
@@ -36,9 +37,12 @@ class Cat {
   /** create a cat: returns {name, age} */
 
   static async create(name, age) {
+    if(!name || !age){
+      throw new ExpressError("Bad Request: Missing required input", 400);
+    }
     const result = await db.query(
         `INSERT INTO cats (name, age)
-        VALUES ($1, $2) RETURNING name, age`,
+        VALUES ($1, $2) RETURNING id, name, age`,
         [name, age]);
 
     return result.rows[0];
@@ -52,7 +56,7 @@ class Cat {
         [id]);
 
     if (result.rows.length === 0) {
-      throw new Error(`No such cat: ${id}`);
+      throw new ExpressError(`No such cat: ${id}`, 404);
     }
   }
 
@@ -60,14 +64,14 @@ class Cat {
 
   static async makeOlder(id) {
     const result = await db.query(
-        `UPDATE cats SET age=age+1 WHERE id=$1 RETURNING age`,
+        `UPDATE cats SET age=age+1 WHERE id=$1 RETURNING name, id, age`,
         [id]);
 
     if (result.rows.length === 0) {
-      throw new Error(`No such cat: ${id}`);
+      throw new ExpressError(`No such cat: ${id}`, 404);
     }
 
-    return result.rows[0].age;
+    return result.rows[0];
   }
 }
 
